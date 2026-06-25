@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Punto Buply · Registro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #f0f9f8; min-height: 100vh; }
+    .wrap { max-width: 440px; margin: 0 auto; padding-bottom: 3rem; }
+    .header { background: #57aba9; border-radius: 0 0 40px 40px; padding: 2rem 1.5rem 2.5rem; text-align: center; margin-bottom: 1.5rem; }
+    .logo { font-size: 30px; font-weight: 900; color: #fff; }
+    .logo span { color: #ffffff; }
+    .header-sub { font-size: 14px; color: #e5f4f3; margin-top: 6px; font-weight: 600; }
+    .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.5rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #c8e8e7; border: 2px solid #57aba9; transition: all 0.25s; }
+    .dot.active { background: #57aba9; width: 24px; border-radius: 4px; }
+    .dot.done { background: #57aba9; }
+    .card { background: #fff; border-radius: 24px; padding: 1.5rem; margin: 0 1rem; box-shadow: 0 2px 16px rgba(87,171,169,0.08); }
+    .step { display: none; }
+    .step.visible { display: block; }
+    .step-title { font-size: 20px; font-weight: 900; color: #57aba9; margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 1.25rem; }
+    label.field-label { display: block; font-size: 12px; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    input[type="text"], input[type="tel"], input[type="email"] { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1.5px solid #e0e0e0; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 600; color: #333; background: #f9f9f9; outline: none; transition: border-color 0.2s; margin-bottom: 1rem; }
+    input:focus { border-color: #57aba9; background: #fff; }
+    input.error { border-color: #e05a3a; }
+    .camera-zone { width: 100%; padding: 24px 16px; border-radius: 20px; border: 2.5px dashed #57aba9; background: #e5f4f3; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; position: relative; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .camera-zone.has-photo { border-style: solid; }
+    .camera-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; font-size: 0; }
+    .cam-circle { width: 60px; height: 60px; background: #57aba9; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .cam-circle svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+    .cam-label { font-size: 18px; font-weight: 900; color: #57aba9; }
+    .cam-sub { font-size: 13px; color: #57aba9; opacity: 0.75; font-weight: 600; }
+    #previewImg { width: 100%; border-radius: 16px; max-height: 220px; object-fit: cover; margin-top: 12px; display: none; }
+    .photo-ok { display: none; align-items: center; gap: 8px; background: #e5f4f3; border-radius: 12px; padding: 10px 14px; margin-top: 10px; }
+    .photo-ok svg { width: 20px; height: 20px; stroke: #57aba9; fill: none; stroke-width: 2.5; stroke-linecap: round; flex-shrink: 0; }
+    .photo-ok span { font-size: 14px; font-weight: 800; color: #57aba9; }
+    .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 800; cursor: pointer; margin-top: 1.25rem; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .btn-main { background: #57aba9; color: #fff; }
+    .btn-main:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-back { background: transparent; border: 2px solid #57aba9; color: #57aba9; margin-top: 8px; }
+    .btn:active { transform: scale(0.97); }
+    #loadingScreen { display: none; text-align: center; padding: 2.5rem 1rem; }
+    .spinner { width: 56px; height: 56px; border: 5px solid #e5f4f3; border-top-color: #57aba9; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.25rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 16px; font-weight: 700; color: #57aba9; }
+    .loading-sub { font-size: 13px; color: #888; margin-top: 6px; font-weight: 600; }
+    #successScreen { display: none; text-align: center; padding: 2rem 1rem; }
+    .success-circle { width: 80px; height: 80px; background: #57aba9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+    .success-circle svg { width: 42px; height: 42px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+    .success-title { font-size: 24px; font-weight: 900; color: #57aba9; margin-bottom: 10px; }
+    .success-sub { font-size: 15px; color: #616160; font-weight: 600; line-height: 1.6; }
+    .success-pill { display: inline-block; background: #f8ecb6; color: #616160; border-radius: 20px; padding: 10px 24px; font-size: 14px; font-weight: 800; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">Bu<span>ply</span></div>
+    <div class="header-sub">Mini Estación Buply · Registro</div>
+  </div>
+  <div class="step-indicator" id="dots">
+    <div class="dot active" id="d0"></div>
+    <div class="dot" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+  </div>
+  <div class="card" id="mainCard">
+
+    <div class="step visible" id="s0">
+      <div class="step-title">Hola, bienvenido</div>
+      <div class="step-desc">¿Cuál es tu nombre?</div>
+      <label class="field-label">Nombre</label>
+      <input type="text" id="nombre" placeholder="Tu nombre" autocomplete="given-name">
+      <label class="field-label">Apellido</label>
+      <input type="text" id="apellido" placeholder="Tu apellido" autocomplete="family-name">
+      <button class="btn btn-main" onclick="ir(1)">Continuar →</button>
+    </div>
+
+    <div class="step" id="s1">
+      <div class="step-title">Tu documento</div>
+      <div class="step-desc">Número de DNI sin puntos</div>
+      <label class="field-label">DNI</label>
+      <input type="tel" id="dni" placeholder="12345678" inputmode="numeric" maxlength="10">
+      <button class="btn btn-main" onclick="ir(2)">Continuar →</button>
+      <button class="btn btn-back" onclick="ir(0)">← Volver</button>
+    </div>
+
+    <div class="step" id="s2">
+      <div class="step-title" id="step-title-foto">Sacá una foto</div>
+      <div class="step-desc" id="step-desc-foto">Mostrá lo que trajiste al punto Buply</div>
+      <label class="camera-zone" id="cameraZone">
+        <input type="file" accept="image/*" capture="environment" id="fileInput" onchange="handleFoto(event)">
+        <div class="cam-circle">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="cam-label">Tocar para abrir cámara</div>
+        <div class="cam-sub">Abre directo la cámara de tu celular</div>
+      </label>
+      <img id="previewImg" alt="Vista previa">
+      <div class="photo-ok" id="photoOk">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span>¡Foto lista!</span>
+      </div>
+      <button class="btn btn-main" id="btnFoto" onclick="usuarioGuardado ? enviar() : ir(3)" disabled>Continuar →</button>
+      <button class="btn btn-back" id="btnVolver2" onclick="ir(1)">← Volver</button>
+    </div>
+
+    <div class="step" id="s3">
+      <div class="step-title">Tu mail</div>
+      <div class="step-desc">Te enviamos la confirmación ahí</div>
+      <label class="field-label">Correo electrónico</label>
+      <input type="email" id="mail" placeholder="ejemplo@mail.com" inputmode="email" autocomplete="email">
+      <button class="btn btn-main" onclick="enviar()">Enviar registro ✓</button>
+      <button class="btn btn-back" onclick="ir(2)">← Volver</button>
+    </div>
+
+    <div id="loadingScreen">
+      <div class="spinner"></div>
+      <div class="loading-text">Enviando tu registro...</div>
+      <div class="loading-sub">Esto tarda solo unos segundos</div>
+    </div>
+
+    <div id="successScreen">
+      <div class="success-circle">
+        <svg viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="success-title">¡Gracias por reciclar!</div>
+      <div class="success-sub">Tu entrega fue registrada.</div>
+      <div class="success-pill">¡Seguimos construyendo juntos!</div>
+
+      <div style="margin-top: 1.5rem; background: #f0f9f8; border-radius: 20px; padding: 1.25rem 1.25rem 1rem; text-align: left;">
+        <p style="font-size: 15px; font-weight: 900; color: #57aba9; margin: 0 0 8px;">¡Tus beneficios se activan en 48 hs en la App Buply!</p>
+        <p style="font-size: 13px; font-weight: 600; color: #616160; line-height: 1.6; margin: 0 0 10px;">Descargá la app y creá tu cuenta con el DNI que usaste en este formulario. Disponible para <strong>iPhone y Android</strong>.</p>
+        <p style="font-size: 13px; font-weight: 600; color: #616160; line-height: 1.6; margin: 0;">Durante 30 días vas a poder disfrutar de <strong>descuentos exclusivos</strong> en distintas marcas y categorías como recompensa por tu compromiso.</p>
+      </div>
+
+      <div style="margin-top: 1rem; background: #57aba9; border-radius: 16px; padding: 1rem 1.25rem; text-align: center;">
+        <p style="font-size: 13px; font-weight: 900; color: #fff; margin: 0; letter-spacing: 0.3px;">Seguinos en Instagram</p>
+        <p style="font-size: 18px; font-weight: 900; color: #f8ecb6; margin: 4px 0 0;">@buply.ar</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaiz-9L0Kg-talW4cPK4OnuE7Nlyv2jj8ssedmbOFSeS--OnRlnCON4MRTqsYyACI6/exec';
+
+  let paso = 0;
+  let fotoBase64 = null;
+  let usuarioGuardado = null;
+
+  // Al cargar la página, verificar si ya hay datos guardados
+  window.onload = function() {
+    const datosGuardados = localStorage.getItem('buply_usuario');
+    if (datosGuardados) {
+      usuarioGuardado = JSON.parse(datosGuardados);
+      // Modo rápido: mostrar saludo y ir directo a foto
+      document.getElementById('s0').classList.remove('visible');
+      document.getElementById('d0').classList.add('done');
+      document.getElementById('d1').classList.add('done');
+      document.getElementById('d2').classList.add('done');
+      
+      // Mostrar paso de foto directamente con saludo
+      document.getElementById('step-title-foto').textContent = '¡Hola de nuevo, ' + usuarioGuardado.nombre + '!';
+      document.getElementById('step-desc-foto').textContent = 'Sacá una foto de lo que trajiste hoy';
+      document.getElementById('s2').classList.add('visible');
+      paso = 2;
+
+      // Ocultar botón volver en modo rápido
+      document.getElementById('btnVolver2').style.display = 'none';
+    }
+  };
+
+  function ir(n) {
+    if (n === 1) {
+      if (!document.getElementById('nombre').value.trim()) { marcarError('nombre'); return; }
+      if (!document.getElementById('apellido').value.trim()) { marcarError('apellido'); return; }
+    }
+    if (n === 2) {
+      const dni = document.getElementById('dni').value.trim();
+      if (!dni || dni.length < 7) { marcarError('dni'); return; }
+    }
+    document.getElementById('s' + paso).classList.remove('visible');
+    document.getElementById('d' + paso).classList.remove('active');
+    document.getElementById('d' + paso).classList.add('done');
+    paso = n;
+    document.getElementById('s' + paso).classList.add('visible');
+    document.getElementById('d' + paso).classList.remove('done');
+    document.getElementById('d' + paso).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function marcarError(id) {
+    const el = document.getElementById(id);
+    el.classList.add('error');
+    el.focus();
+    setTimeout(() => el.classList.remove('error'), 2000);
+  }
+
+  function handleFoto(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const MAX = 1000;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = h * MAX / w; w = MAX; }
+        if (h > MAX) { w = w * MAX / h; h = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        fotoBase64 = canvas.toDataURL('image/jpeg', 0.65);
+        document.getElementById('previewImg').src = fotoBase64;
+        document.getElementById('previewImg').style.display = 'block';
+        document.getElementById('photoOk').style.display = 'flex';
+        document.getElementById('cameraZone').classList.add('has-photo');
+        document.getElementById('btnFoto').disabled = false;
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function enviar() {
+    let payload;
+
+    if (usuarioGuardado) {
+      // Usuario ya registrado — solo necesita la foto
+      payload = {
+        nombre: usuarioGuardado.nombre,
+        apellido: usuarioGuardado.apellido,
+        dni: usuarioGuardado.dni,
+        mail: usuarioGuardado.mail,
+        foto: fotoBase64
+      };
+      document.getElementById('s2').classList.remove('visible');
+    } else {
+      // Usuario nuevo
+      const mail = document.getElementById('mail').value.trim();
+      if (!mail || !mail.includes('@')) { marcarError('mail'); return; }
+      payload = {
+        nombre: document.getElementById('nombre').value.trim(),
+        apellido: document.getElementById('apellido').value.trim(),
+        dni: document.getElementById('dni').value.trim(),
+        mail: mail,
+        foto: fotoBase64
+      };
+      // Guardar datos para la próxima vez
+      localStorage.setItem('buply_usuario', JSON.stringify(payload));
+      document.getElementById('s3').classList.remove('visible');
+    }
+
+    document.getElementById('dots').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'block';
+
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors'
+    })
+    .then(() => {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    })
+    .catch(() => {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    });
+  }
+</script>
+</body>
+</html>
